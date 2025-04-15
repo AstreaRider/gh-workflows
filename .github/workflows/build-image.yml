@@ -10,6 +10,10 @@ on:
         description: "your container latest tag, example: dev-latest"
         required: true
         type: string
+      RUNNER_LABEL:
+        description: "your self hosted runner's label"
+        required: true
+        type: string
     secrets:
       CONTAINER_REGISTRY_USERNAME:
         description: "your container registry username"
@@ -20,7 +24,9 @@ env:
 jobs:
   build-image:
     name: Build a container image
-    runs-on: [self-hosted, notes-api-demo]
+    runs-on: 
+      - self-hosted
+      - ${{ inputs.RUNNER_LABEL }}
     outputs:
       build_id: ${{ steps.prep.outputs.BUILD_ID }}
       latest_id: ${{ steps.prep.outputs.LATEST_ID }}

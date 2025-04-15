@@ -10,6 +10,10 @@ on:
         description: "your container latest id or tag"
         required: true
         type: string
+      RUNNER_LABEL:
+        description: "your self hosted runner's label"
+        required: true
+        type: string
     secrets:
       CONTAINER_REGISTRY_USERNAME:
         description: "your container registry username"
@@ -22,7 +26,9 @@ env:
 jobs:
   scan-image:
     name: Scan an image vulnerabilities
-    runs-on: [self-hosted, notes-api-demo]
+    runs-on: 
+      - self-hosted
+      - ${{ inputs.RUNNER_LABEL }}
     needs: build-push-image
     steps:
       - name: Docker Scout
