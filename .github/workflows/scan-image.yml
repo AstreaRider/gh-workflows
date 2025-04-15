@@ -1,0 +1,34 @@
+name: Template for scanning a container images
+on:
+  workflow_call:
+    inputs:
+      CONTAINER_REGISTRY_REPO:
+        description: "name of your repo or project name in your container registry"
+        required: true
+        type: string
+      CONTAINER_LATEST_TAG:
+        description: "your container latest id or tag"
+        required: true
+        type: string
+    secrets:
+      CONTAINER_REGISTRY_USERNAME:
+        description: "your container registry username"
+        required: true
+
+env:
+  IMAGE: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}/${{ inputs.CONTAINER_REGISTRY_REPO }}
+  LATEST_ID: ${{ inputs.CONTAINER_LATEST_TAG }}
+  
+jobs:
+  scan-image:
+    name: Scan an image vulnerabilities
+    runs-on: [self-hosted, notes-api-demo]
+    needs: build-push-image
+    steps:
+      - name: Docker Scout
+        uses: docker/scout-action@v1.2.2
+        with:
+          command: cves
+          image: ${{ env.IMAGE }}:${{ env.LATEST_ID }}
+          only-severities: critical,high
+          exit-code: false

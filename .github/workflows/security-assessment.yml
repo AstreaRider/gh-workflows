@@ -1,4 +1,4 @@
-name: Security assesment
+name: Template for security assessment
 on:
   workflow_call:
     secrets:

@@ -1,4 +1,4 @@
-name: SAST assesment
+name: Template for SAST assessment
 on:
   workflow_call:
     inputs:
