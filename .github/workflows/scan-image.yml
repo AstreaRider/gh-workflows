@@ -29,7 +29,6 @@ jobs:
     runs-on: 
       - self-hosted
       - ${{ inputs.RUNNER_LABEL }}
-    needs: build-push-image
     steps:
       - name: Docker Scout
         uses: docker/scout-action@v1.2.2
