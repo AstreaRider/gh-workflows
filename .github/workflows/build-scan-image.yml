@@ -22,7 +22,7 @@ on:
 env:
   IMAGE: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}/${{ inputs.CONTAINER_REGISTRY_REPO }}
 jobs:
-  build-image:
+  build-scan-image:
     name: Build a container image
     runs-on: 
       - self-hosted
@@ -33,6 +33,7 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
+
       - name: Prepare Image Metadata
         id: prep
         run: |
@@ -42,6 +43,7 @@ jobs:
           LATEST_ID=${{ inputs.CONTAINER_LATEST_TAG }}
           echo "BUILD_ID=${BUILD_ID}" >> $GITHUB_OUTPUT
           echo "LATEST_ID=${LATEST_ID}" >> $GITHUB_OUTPUT
+
       - name: Push Image to Container Registry
         if: success()
         uses: docker/build-push-action@v3
@@ -50,3 +52,11 @@ jobs:
           tags: |
             ${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
             ${{ env.IMAGE }}:${{ steps.prep.outputs.LATEST_ID }}
+
+      - name: Docker Scout
+        uses: docker/scout-action@v1.2.2
+        with:
+          command: cves
+          image: ${{ env.IMAGE }}:${{ env.steps.prep.outputs.LATEST_ID }}
+          only-severities: critical,high
+          exit-code: false
