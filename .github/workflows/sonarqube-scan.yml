@@ -1,4 +1,8 @@
-name: Template for SAST assessment
+name: Template for Sonarqube Scan
+description: |
+  This workflow is used to run a Sonarqube scan on the codebase.
+  It requires a Sonarqube server URL and a token for authentication.
+  The scan will be performed on a self-hosted runner labeled 'notes-api-demo'.
 on:
   workflow_call:
     inputs:
@@ -10,10 +14,14 @@ on:
       SONAR_TOKEN:
         description: "Sonarqube token to check code quality"
         required: true
+      RUNNER_LABELS:
+        description: "Labels for the self-hosted runner. Example: ['notes-api-demo']"
+        required: true
+        type: string
 jobs:
-  SAST-assesment:
+  scanning:
     name: Sonarqube Scan
-    runs-on: [self-hosted, notes-api-demo]
+    runs-on: ${{ fromJson('["self-hosted", ' + inputs.RUNNER_LABELS + ']') }}
     steps:
       - uses: actions/checkout@v4
         with:
