@@ -2,7 +2,7 @@ name: Template for Sonarqube Scan
 description: |
   This workflow is used to run a Sonarqube scan on the codebase.
   It requires a Sonarqube server URL and a token for authentication.
-  The scan will be performed on a self-hosted runner labeled 'notes-api-demo'.
+  The scan will be performed on a self-hosted runner labeled 'ubuntu-24', 'gpu', 'etc'.
 on:
   workflow_call:
     inputs:
@@ -19,7 +19,7 @@ on:
         required: true
         type: string
 jobs:
-  scanning:
+  sonarqube-scan:
     name: Sonarqube Scan
     runs-on: ${{ fromJson('["self-hosted", ' + inputs.RUNNER_LABELS + ']') }}
     steps:
