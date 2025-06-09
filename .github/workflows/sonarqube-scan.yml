@@ -10,14 +10,15 @@ on:
         description: "sonarqube host url. exxample http://localhost:9000"
         required: true
         type: string
+      RUNNER_LABELS:
+        description: "Labels for the self-hosted runner. Example: 'notes-api-demo', 'ubuntu-24', 'gpu', etc."
+        required: true
+        type: string
     secrets:
       SONAR_TOKEN:
         description: "Sonarqube token to check code quality"
         required: true
-      RUNNER_LABELS:
-        description: "Labels for the self-hosted runner. Example: ['notes-api-demo']"
-        required: true
-        type: string
+      
 jobs:
   sonarqube-scan:
     name: Sonarqube Scan
