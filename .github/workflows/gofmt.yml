@@ -14,7 +14,7 @@ on:
 jobs:
   gofmt-check:
     name: Check Go Code Format
-    runs-on: ${{ fromJson(format('["self-hosted", {0}]', inputs.RUNNER_LABELS)) }}
+    runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
