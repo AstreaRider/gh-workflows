@@ -11,7 +11,7 @@ on:
         required: true
         type: string
       RUNNER_LABELS:
-        description: "Labels for the self-hosted runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
+        description: "Labels for the runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
         required: true
         type: string
     secrets:
