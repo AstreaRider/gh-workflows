@@ -2,16 +2,16 @@ name: Template for Sonarqube Scan
 description: |
   This workflow is used to run a Sonarqube scan on the codebase.
   It requires a Sonarqube server URL and a token for authentication.
-  The scan will be performed on a self-hosted runner labeled 'ubuntu-24', 'gpu', 'etc'.
+  The scan will be performed on a self-hosted runner labeled 'ubuntu', 'gpu', 'etc'.
 on:
   workflow_call:
     inputs:
       SONAR_HOST_URL:
-        description: "sonarqube host url. exxample http://localhost:9000"
+        description: "sonarqube host url. example http://your-sonarqube-server:9000"
         required: true
         type: string
       RUNNER_LABELS:
-        description: "Labels for the self-hosted runner. Example: 'notes-api-demo', 'ubuntu-24', 'gpu', etc."
+        description: "Labels for the self-hosted runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
         required: true
         type: string
     secrets:
@@ -22,7 +22,7 @@ on:
 jobs:
   sonarqube-scan:
     name: Sonarqube Scan
-    runs-on: ${{ fromJson(format('["self-hosted", {0}]', inputs.RUNNER_LABELS)) }}
+    runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
     steps:
       - uses: actions/checkout@v4
         with:
