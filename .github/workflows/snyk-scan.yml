@@ -1,0 +1,37 @@
+name: Template for Snyk Scan
+description: |
+  This workflow is used to run a Snyk scan on the codebase.
+  It requires a Snyk token for authentication.
+  The scan will be performed on a self-hosted runner labeled 'ubuntu', 'gpu', etc.
+on:
+  workflow_call:
+    inputs:
+      RUNNER_LABELS:
+        description: "Labels for the runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
+        required: true
+        type: string
+    secrets:
+      SNYK_TOKEN:
+        description: "Snyk token to run SCA"
+        required: true
+jobs:
+  snyk-scan:
+    name: Snyk Scan
+    runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Run Snyk to check for vulnerabilities
+        uses: snyk/actions/golang@master
+        continue-on-error: true
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --sarif-file-output=snyk.sarif
+
+      - name: Upload result to GitHub Code Scanning
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk
