@@ -1,0 +1,35 @@
+name: Template for GitGuardian Scan
+description: |
+  This workflow is used to run a GitGuardian scan on the codebase.
+  It requires a GitGuardian API key for authentication.
+  The scan will be performed on a self-hosted runner labeled 'ubuntu', 'gpu', etc.
+on:
+  workflow_call:
+    inputs:
+      RUNNER_LABELS:
+        description: "Labels for the runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
+        required: true
+        type: string
+    secrets:
+      GITGUARDIAN_API_KEY:
+        description: "GitGuardian API key to check hardcoded credentials"
+        required: true
+jobs:
+  gitguardian-scan:
+    name: GitGuardian Scan
+    runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run GitGuardian Scan
+        uses: GitGuardian/ggshield/actions/secret@v1.29.0
+        env:
+          GITHUB_PUSH_BEFORE_SHA: ${{ github.event.before }}
+          GITHUB_PUSH_BASE_SHA: ${{ github.event.base }}
+          GITHUB_PULL_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          GITHUB_DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GITGUARDIAN_API_KEY: ${{ secrets.GITGUARDIAN_API_KEY }}
+      

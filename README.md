@@ -1,5 +1,5 @@
 # General
-## 🔍 SonarQube Scan Workflow Template
+## SonarQube Scan Workflow Template
 
 This reusable GitHub Actions workflow is designed to run a **SonarQube scan** on a project’s codebase.  
 It’s perfect for teams who want to keep code quality in check with minimal setup across multiple repos.
@@ -22,7 +22,7 @@ name: Run SonarQube Scan
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
   SAST-assessment:
@@ -34,7 +34,7 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 ```
 ---
-## 🛡️ Snyk Scan Workflow Template
+## Snyk Scan Workflow Template
 
 This reusable GitHub Actions workflow is designed to run a **Snyk scan** on a project’s codebase.  
 It’s ideal for identifying vulnerabilities in your dependencies with minimal setup across multiple repos.
@@ -60,7 +60,7 @@ name: Run Snyk Scan
 
 on:
   push:
-    branches: [main]
+    branches: [master]
 
 jobs:
   Snyk-assessment:
@@ -70,11 +70,24 @@ jobs:
     secrets:
       SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 ```
+## Gitguardian Scan Workflow Template:
+
+This job scans the repository for potential secrets (such as API keys, passwords, or other sensitive information)
+
+### 📦 Features
+- 🧠 Reusable across projects via `workflow_call`
+- 💪 Supports custom **self-hosted runners** (e.g. `ubuntu`, `gpu`, `project-specific` runners)
+
+---
+
+### 🛠 Usage
+To use this workflow in your repo, call it from another workflow like this:
+
 
 ---
 # Go specific
 
-## 🔒 Gosec Scan Workflow Template
+## Gosec Scan Workflow Template
 
 This reusable GitHub Actions workflow runs a **Gosec security scan** on your Go codebase.  
 It’s ideal for teams aiming to automate static security analysis for Go projects with minimal setup.
@@ -97,7 +110,7 @@ name: Run Gosec Scan
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
 
 jobs:
