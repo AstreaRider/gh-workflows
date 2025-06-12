@@ -26,7 +26,7 @@ on:
       
 
 env:
-  IMAGE: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}/${{ inputs.CONTAINER_REGISTRY_REPO }}
+  IMAGE: ${{ inputs.REGISTRY_TYPE }}/${{ inputs.CONTAINER_REGISTRY_USERNAME }}/${{ inputs.CONTAINER_REGISTRY_REPO }}
 jobs:
   build-scan-image:
     name: Build a container image
