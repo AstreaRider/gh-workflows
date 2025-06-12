@@ -1,0 +1,58 @@
+name: Template for building a container image
+on:
+  workflow_call:
+    inputs:
+      CONTAINER_REGISTRY_REPO:
+        description: "Repo name or project name in your container registry"
+        required: true
+        type: string
+      CONTAINER_LATEST_TAG:
+        description: "Your container latest tag, example: dev-latest"
+        required: true
+        type: string
+      RUNNER_LABELS:
+        description: "Labels for the runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
+        required: true
+        type: string
+      REGISTRY_TYPE:
+        description: "The registry provider type (dockerhub, ghcr, harbor, etc)"
+        required: false
+        default: docker.io
+        type: string
+      CONTAINER_REGISTRY_USERNAME:
+        description: "Your container registry username. Example: docker.io/your-username"
+        required: false
+        type: string
+      
+
+env:
+  IMAGE: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}/${{ inputs.CONTAINER_REGISTRY_REPO }}
+jobs:
+  build-scan-image:
+    name: Build a container image
+    runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
+    outputs:
+      build_id: ${{ steps.prep.outputs.BUILD_ID }}
+      latest_id: ${{ steps.prep.outputs.LATEST_ID }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Prepare Image Metadata
+        id: prep
+        run: |
+          BRANCH=${GITHUB_REF##*/}
+          TS=$(date +%s)
+          BUILD_ID="${BRANCH}-${TS}"
+          LATEST_ID=${{ inputs.CONTAINER_LATEST_TAG }}
+          echo "BUILD_ID=${BUILD_ID}" >> $GITHUB_OUTPUT
+          echo "LATEST_ID=${LATEST_ID}" >> $GITHUB_OUTPUT
+
+      - name: Build an Container Image
+        if: success()
+        uses: docker/build-push-action@v3
+        with:
+          push: false
+          tags: |
+            ${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
+            ${{ env.IMAGE }}:${{ steps.prep.outputs.LATEST_ID }}
