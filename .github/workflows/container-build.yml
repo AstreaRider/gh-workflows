@@ -2,10 +2,6 @@ name: Template for building a container image
 on:
   workflow_call:
     inputs:
-      CONTAINER_REGISTRY_REPO:
-        description: "Repo name or project name in your container registry"
-        required: true
-        type: string
       CONTAINER_LATEST_TAG:
         description: "Your container latest tag, example: dev-latest"
         required: true
@@ -14,19 +10,14 @@ on:
         description: "Labels for the runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
         required: true
         type: string
-      REGISTRY_TYPE:
-        description: "The registry provider type (dockerhub, ghcr, harbor, etc)"
-        required: false
-        default: docker.io
-        type: string
-      CONTAINER_REGISTRY_USERNAME:
-        description: "Your container registry username. Example: docker.io/your-username"
-        required: false
+      CONTAINER_REGISTRY_URL:
+        description: "Base container registry URL (e.g. ghcr.io/username, harbor.company.com/project, docker.io/username, your.private.container.registry/project, etc)"
+        required: true
         type: string
       
 
 env:
-  IMAGE: ${{ inputs.REGISTRY_TYPE }}/${{ inputs.CONTAINER_REGISTRY_USERNAME }}/${{ inputs.CONTAINER_REGISTRY_REPO }}
+  IMAGE: ${{ inputs.CONTAINER_REGISTRY_URL }}
 jobs:
   build-scan-image:
     name: Build a container image
