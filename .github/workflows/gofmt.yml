@@ -33,12 +33,9 @@ jobs:
           UNFORMATTED=$(gofmt -l .)
 
           if [ -n "$UNFORMATTED" ]; then
-            echo "🚨 The following files are not properly formatted:"
+            echo "⚠️ The following files are not properly formatted:"
             echo "$UNFORMATTED"
-
-            # Write unformatted files to a file
             echo "$UNFORMATTED" > unformatted.txt
-
             echo "❌ Please run 'gofmt -w .' to fix formatting issues."
             exit 1
           fi
