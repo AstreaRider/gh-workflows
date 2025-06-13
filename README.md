@@ -111,6 +111,45 @@ jobs:
     with:
       RUNNER_LABELS: '"self-hosted", "ubuntu"'
 ```
+---
+
+## Container Build Workflow Template
+
+This reusable GitHub Actions workflow builds a container image using Docker without pushing it.
+Perfect for teams that want to separate build and push phases, and support multiple registry providers (like ghcr, Harbor, DockerHub, or private registries).
+
+### 📦 Features
+* 🔨 Builds a container image from your source code
+* 🧠 Reusable across projects via `workflow_call`
+* 🌐 Supports any container registry via `CONTAINER_REGISTRY_UR`L
+* 💪 Works with custom self-hosted runners (`ubuntu`, `gpu`, `project-specific`, etc.)
+* 🏷️ Auto-tags images using branch name + `timestamp`, and a custom `"latest"` tag
+
+### 🛠 Usage
+To use this workflow in your repo, call it from another workflow like this:
+
+```yaml
+# .github/workflows/build-image.yaml
+name: Build Container Image
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build-image:
+    uses: astrearider/gh-workflows/.github/workflows/container-build.yml@master
+    with:
+      RUNNER_LABELS: '"self-hosted", "ubuntu"'
+      CONTAINER_LATEST_TAG: dev-latest
+      CONTAINER_REGISTRY_URL: ghcr.io/your-org-or-username/your-image
+```
+### 🧪 Output
+This template outputs:
+* `build_id`: Auto-generated unique image tag based on branch and timestamp
+* `latest_id`: Your custom "latest-style" tag (e.g. dev-latest)
+You can use these outputs in downstream workflows (e.g., for pushing or scanning).
+
 
 ---
 
