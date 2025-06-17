@@ -27,7 +27,7 @@ on:
       
 
 env:
-  IMAGE: ${{ inputs.CONTAINER_REGISTRY_URL }}
+  IMAGE: ${{ secrets.CONTAINER_REGISTRY_URL }}
 jobs:
   build-scan-image:
     name: Build a container image
