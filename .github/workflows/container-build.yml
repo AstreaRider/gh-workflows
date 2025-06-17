@@ -2,10 +2,6 @@ name: Template for building a container image
 on:
   workflow_call:
     inputs:
-      CONTAINER_LATEST_TAG:
-        description: "Your container latest tag, example: dev-latest"
-        required: true
-        type: string
       RUNNER_LABELS:
         description: "Labels for the runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
         required: true
