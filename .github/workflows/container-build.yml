@@ -61,8 +61,16 @@ jobs:
             TAGS="$TAGS,latest"
           fi
 
+          IFS=',' read -ra TAG_ARRAY <<< "$TAGS"
+          TAG_LINES=""
+          for TAG in "${TAG_ARRAY[@]}"; do
+            TAG_LINES+="${{ env.IMAGE }}:$TAG"$'\n'
+          done
+
           echo "build_id=$TAGS" >> $GITHUB_OUTPUT
-          echo "tags=$TAGS" >> $GITHUB_OUTPUT
+          echo "docker_tags<<EOF" >> $GITHUB_OUTPUT
+          echo "$TAG_LINES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Build Docker Image (No Push)
         uses: docker/build-push-action@v3
@@ -73,4 +81,4 @@ jobs:
             org.opencontainers.image.created=${{ steps.metadata.outputs.build_id }}
             org.opencontainers.image.revision=${{ github.sha }}
           tags: |
-            ${{ join(fromJSON('["' + steps.metadata.outputs.tags + '"]'), format('\n{0}:', env.IMAGE)) }}:${{ steps.metadata.outputs.build_id }}
+            ${{ steps.meta.outputs.docker_tags }}
