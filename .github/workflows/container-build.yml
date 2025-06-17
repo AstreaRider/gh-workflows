@@ -10,6 +10,16 @@ on:
         description: "Labels for the runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
         required: true
         type: string
+      TAG_STRATEGY:
+        description: "Optional: Tagging strategy ('sha', 'timestamp', 'manual')"
+        required: false
+        type: string
+        default: "timestamp"
+      MANUAL_TAG:
+        description: "Optional: Used when TAG_STRATEGY is 'manual'"
+        required: false
+        type: string
+    secrets:
       CONTAINER_REGISTRY_URL:
         description: "Base container registry URL (e.g. ghcr.io/username, harbor.company.com/project, docker.io/username, your.private.container.registry/project, etc)"
         required: true
@@ -29,21 +39,39 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
-      - name: Prepare Image Metadata
-        id: prep
+      - name: Prepare Tag Metadata
+        id: metadata
         run: |
-          BRANCH=${GITHUB_REF##*/}
-          TS=$(date +%s)
-          BUILD_ID="${BRANCH}-${TS}"
-          LATEST_ID=${{ inputs.CONTAINER_LATEST_TAG }}
-          echo "BUILD_ID=${BUILD_ID}" >> $GITHUB_OUTPUT
-          echo "LATEST_ID=${LATEST_ID}" >> $GITHUB_OUTPUT
+          STRATEGY="${{ inputs.TAG_STRATEGY }}"
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          SHORT_SHA="${GITHUB_SHA::7}"
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
 
-      - name: Build an Container Image
-        if: success()
+          if [[ "$STRATEGY" == "manual" && "${{ inputs.MANUAL_TAG }}" != "" ]]; then
+            TAGS="$BRANCH-${{ inputs.MANUAL_TAG }}"
+          elif [[ "$STRATEGY" == "sha" ]]; then
+            TAGS="$BRANCH-$SHORT_SHA"
+          elif [[ "$STRATEGY" == "timestamp" ]]; then
+            TAGS="$BRANCH-$TIMESTAMP"
+          else
+            echo "Invalid or no tagging strategy provided. Defaulting to branch name."
+            TAGS="$BRANCH"
+          fi
+
+          if [[ "$BRANCH" != "master" ]]; then
+            TAGS="$TAGS,latest"
+          fi
+
+          echo "build_id=$TAGS" >> $GITHUB_OUTPUT
+          echo "tags=$TAGS" >> $GITHUB_OUTPUT
+
+      - name: Build Docker Image (No Push)
         uses: docker/build-push-action@v3
         with:
           push: false
+          labels: |
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.created=${{ steps.metadata.outputs.build_id }}
+            org.opencontainers.image.revision=${{ github.sha }}
           tags: |
-            ${{ env.IMAGE }}:${{ steps.prep.outputs.BUILD_ID }}
-            ${{ env.IMAGE }}:${{ steps.prep.outputs.LATEST_ID }}
+            ${{ join(fromJSON('["' + steps.metadata.outputs.tags + '"]'), format('\n{0}:', env.IMAGE)) }}:${{ steps.metadata.outputs.build_id }}
