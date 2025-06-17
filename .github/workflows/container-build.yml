@@ -57,22 +57,11 @@ jobs:
             TAGS="$BRANCH"
           fi
 
-          if [[ "$BRANCH" != "master" ]]; then
-            TAGS="$TAGS,latest"
-          fi
-
-          IFS=',' read -ra TAG_ARRAY <<< "$TAGS"
-          TAG_LINES=""
-          for TAG in "${TAG_ARRAY[@]}"; do
-            TAG_LINES+="${{ env.IMAGE }}:$TAG"$'\n'
-          done
-
           echo "build_id=$TAGS" >> $GITHUB_OUTPUT
-          echo "docker_tags<<EOF" >> $GITHUB_OUTPUT
-          echo "$TAG_LINES" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          echo "latest_id=${BRANCH}-latest" >> $GITHUB_OUTPUT
 
       - name: Build Docker Image (No Push)
+        if: success()
         uses: docker/build-push-action@v3
         with:
           push: false
@@ -81,4 +70,5 @@ jobs:
             org.opencontainers.image.created=${{ steps.metadata.outputs.build_id }}
             org.opencontainers.image.revision=${{ github.sha }}
           tags: |
-            ${{ steps.meta.outputs.docker_tags }}
+            ${{ env.IMAGE }}:${{ steps.metadata.outputs.build_id }}
+            ${{ env.IMAGE }}:${{ steps.metadata.outputs.latest_id }}
