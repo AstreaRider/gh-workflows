@@ -24,9 +24,6 @@ on:
         description: "Base container registry URL (e.g. ghcr.io/username, harbor.company.com/project, docker.io/username, your.private.container.registry/project, etc)"
         required: true
       
-
-env:
-  IMAGE: ${{ secrets.CONTAINER_REGISTRY_URL }}
 jobs:
   build-scan-image:
     name: Build a container image
@@ -70,5 +67,5 @@ jobs:
             org.opencontainers.image.created=${{ steps.metadata.outputs.build_id }}
             org.opencontainers.image.revision=${{ github.sha }}
           tags: |
-            ${{ env.IMAGE }}:${{ steps.metadata.outputs.build_id }}
-            ${{ env.IMAGE }}:${{ steps.metadata.outputs.latest_id }}
+            ${{ secrets.CONTAINER_REGISTRY_URL }}:${{ steps.metadata.outputs.build_id }}
+            ${{ secrets.CONTAINER_REGISTRY_URL }}:${{ steps.metadata.outputs.latest_id }}
