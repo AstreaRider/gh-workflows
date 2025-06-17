@@ -23,7 +23,6 @@ on:
       CONTAINER_REGISTRY_URL:
         description: "Base container registry URL (e.g. ghcr.io/username, harbor.company.com/project, docker.io/username, your.private.container.registry/project, etc)"
         required: true
-        type: string
       
 
 env:
