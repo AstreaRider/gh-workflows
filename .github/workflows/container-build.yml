@@ -6,15 +6,6 @@ on:
         description: "Labels for the runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
         required: true
         type: string
-      TAG_STRATEGY:
-        description: "Optional: Tagging strategy ('sha', 'timestamp', 'manual')"
-        required: false
-        type: string
-        default: "timestamp"
-      MANUAL_TAG:
-        description: "Optional: Used when TAG_STRATEGY is 'manual'"
-        required: false
-        type: string
     secrets:
       CONTAINER_REGISTRY_URL:
         description: "Base container registry URL (e.g. ghcr.io/username, harbor.company.com/project, docker.io/username, your.private.container.registry/project, etc)"
@@ -25,43 +16,32 @@ jobs:
     name: Build a container image
     runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
     outputs:
-      build_id: ${{ steps.prep.outputs.BUILD_ID }}
-      latest_id: ${{ steps.prep.outputs.LATEST_ID }}
+      tags: ${{ steps.metadata.outputs.tags }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
 
+      - name: Extract timestamp
+        id: timestamp
+        run: echo "TIMESTAMP=$(date +%s)" >> $GITHUB_OUTPUT
+
       - name: Prepare Tag Metadata
         id: metadata
-        run: |
-          STRATEGY="${{ inputs.TAG_STRATEGY }}"
-          BRANCH="${GITHUB_REF#refs/heads/}"
-          SHORT_SHA="${GITHUB_SHA::7}"
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-
-          if [[ "$STRATEGY" == "manual" && "${{ inputs.MANUAL_TAG }}" != "" ]]; then
-            TAGS="$BRANCH-${{ inputs.MANUAL_TAG }}"
-          elif [[ "$STRATEGY" == "sha" ]]; then
-            TAGS="$BRANCH-$SHORT_SHA"
-          elif [[ "$STRATEGY" == "timestamp" ]]; then
-            TAGS="$BRANCH-$TIMESTAMP"
-          else
-            echo "Invalid or no tagging strategy provided. Defaulting to branch name."
-            TAGS="$BRANCH"
-          fi
-
-          echo "build_id=$TAGS" >> $GITHUB_OUTPUT
-          echo "latest_id=${BRANCH}-latest" >> $GITHUB_OUTPUT
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ secrets.CONTAINER_REGISTRY_URL }}
+          tags: |
+            type=ref,event=branch,suffix=latest
+            type=ref,event=branch,suffix=${{ steps.timestamp.outputs.TIMESTAMP }}
+            type=semver,pattern={{version}}
+            type=sha
+          flavor: |
+            latest=true
 
       - name: Build Docker Image (No Push)
         if: success()
         uses: docker/build-push-action@v3
         with:
           push: false
-          labels: |
-            org.opencontainers.image.source=${{ github.repository }}
-            org.opencontainers.image.created=${{ steps.metadata.outputs.build_id }}
-            org.opencontainers.image.revision=${{ github.sha }}
-          tags: |
-            ${{ secrets.CONTAINER_REGISTRY_URL }}:${{ steps.metadata.outputs.build_id }}
-            ${{ secrets.CONTAINER_REGISTRY_URL }}:${{ steps.metadata.outputs.latest_id }}
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.metadata.outputs.tags }}
