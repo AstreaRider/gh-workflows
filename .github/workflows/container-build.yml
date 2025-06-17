@@ -23,7 +23,7 @@ jobs:
 
       - name: Extract timestamp
         id: timestamp
-        run: echo "TIMESTAMP=$(date +%s)" >> $GITHUB_OUTPUT
+        run: echo "TIMESTAMP=$(date +%Y%m%d%H%M%S)" >> $GITHUB_OUTPUT
 
       - name: Prepare Tag Metadata
         id: metadata
