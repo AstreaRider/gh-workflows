@@ -115,16 +115,19 @@ jobs:
 
 ## Container Build Workflow Template
 
-This reusable GitHub Actions workflow builds a container image using Docker without pushing it to the registry.
-It supports flexible tagging strategies, works across cloud or self-hosted registries, and is designed with modern CI/CD best practices in mind.
+This reusable GitHub Actions workflow builds a container image using Docker without pushing it. It leverages docker/metadata-action to generate intelligent and consistent image tags based on Git refs, semantic versions, SHA, and a timestamp.
 
 ### 📦 Features
 * 🔨 Builds a container image from your source code
 * 🧠 Reusable across projects via workflow_call
+* 🏷️ Automatically tags images with:
+  * branch-latest
+  * branch-timestamp (e.g. dev-20250611XXXXXX)
+  * Git short SHA (e.g. sha-abc1234)
+  * Semantic version (e.g. v1.0.1) if triggered from Git tag
+* 💪 Supports custom self-hosted runners
 * 🌐 Works with any container registry via CONTAINER_REGISTRY_URL
-* 💪 Supports custom self-hosted runners (ubuntu, gpu, project-specific, etc.)
-* 🏷️ Auto-tags images using branch + timestamp, sha, or manual tag
-* 🚀 Outputs tags for downstream usage (e.g., push or sign)
+* 🔐 Secure credentials handling via secrets
 
 ### 🛠 Usage
 To use this workflow in your repo, call it from another workflow like this:
@@ -136,22 +139,23 @@ name: Build Container Image
 on:
   push:
     branches: [master]
+    tags: ['v*']
 
 jobs:
   build-image:
     uses: astrearider/gh-workflows/.github/workflows/container-build.yml@master
     with:
       RUNNER_LABELS: '"self-hosted", "ubuntu"'
-      TAG_STRATEGY: "manual" # default "timestamp"
-      MANUAL_TAG: "v1.0.0"
     secrets:
-      CONTAINER_REGISTRY_URL: "ghcr.io/your-org-or-username/your-image"
+      CONTAINER_REGISTRY_URL: ghcr.io/your-org/your-app
 ```
 ### 🧪 Output
-This template outputs:
-* `build_id`: Auto-generated unique image tag based on timestamp, sha, or your manual input
-* `latest_id`: Auto-generated branch-latest tag
-You can use these outputs in downstream workflows (e.g., for pushing or scanning).
+This workflow exposes the following output for downstream use:
+* tags: Generated list of container tags like:
+  * dev-latest
+  * dev-20250611123456
+  * sha-abc1234
+  * v1.0.1 (if triggered from Git tag v1.0.1)
 
 
 ---
@@ -218,12 +222,12 @@ name: Go Code Format Check
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
 
 jobs:
   gofmt:
-    uses: astrearider/gh-workflows/.github/workflows/gofmt.yml@main
+    uses: astrearider/gh-workflows/.github/workflows/gofmt.yml@master
     with:
       RUNNER_LABELS: '"self-hosted", "ubuntu", "gpu", "project_a"'
 ```
