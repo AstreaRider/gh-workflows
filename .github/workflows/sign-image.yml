@@ -1,0 +1,52 @@
+name: Template for signing a container image
+on:
+  workflow_call:
+    inputs:
+      RUNNER_LABELS:
+        description: "Labels for the runner. Example: 'self-hosted', 'ubuntu', 'gpu', etc."
+        required: true
+        type: string
+      IMAGE_TAGS:
+        description: "Metadata for the container image to be signed, including the image name and tags."
+        required: true
+        type: string
+      IMAGE_DIGEST:
+        description: "The digest of the container image to be signed."
+        required: true
+        type: string
+    secrets:
+      COSIGN_PASSWORD:
+        description: "Password for the cosign key."
+        required: true
+      COSIGN_PRIVATE_KEY:
+        description: "Private key for signing the container image."
+        required: true  
+  
+jobs:
+  sign-image:
+    name: Sign a container image
+    runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.9.0
+
+      - name: Check install!
+        run: cosign version
+
+      - name: Sign image with a key
+        run: |
+          images=""
+          for tag in ${TAGS}; do
+            images+="${tag}@${DIGEST} "
+          done
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
+        env:
+          TAGS: ${{ inputs.IMAGE_TAGS }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          DIGEST: ${{ inputs.IMAGE_DIGEST }}
+
+      

@@ -35,8 +35,6 @@ jobs:
             type=ref,event=branch,suffix=-${{ steps.timestamp.outputs.TIMESTAMP }}
             type=semver,pattern={{version}}
             type=sha
-          flavor: |
-            latest=true
 
       - name: Build Docker Image (No Push)
         if: success()

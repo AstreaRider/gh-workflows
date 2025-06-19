@@ -152,10 +152,10 @@ jobs:
 ### 🧪 Output
 This workflow exposes the following output for downstream use:
 * tags: Generated list of container tags like:
-  * dev-latest
-  * dev-20250611123456
-  * sha-abc1234
-  * v1.0.1 (if triggered from Git tag v1.0.1)
+  * container-registry/your-org/your-app:dev-latest
+  * container-registry/your-org/your-app:dev-20250611123456
+  * container-registry/your-org/your-app:sha-abc1234
+  * container-registry/your-org/your-app:v1.0.1 (if triggered from Git tag v1.0.1)
 
 
 ---
