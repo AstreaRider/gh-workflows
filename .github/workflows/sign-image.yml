@@ -27,6 +27,11 @@ jobs:
     name: Sign a container image
     runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
     steps:
+      - name: Check variables
+        run: |
+          echo "IMAGE_TAGS: ${{ inputs.IMAGE_TAGS }}"
+          echo "IMAGE_DIGEST: ${{ inputs.IMAGE_DIGEST }}"
+          
       - name: Checkout Repo
         uses: actions/checkout@v3
 
