@@ -38,11 +38,14 @@ jobs:
 
       - name: Sign image with a key
         run: |
-          images=""
-          for tag in ${TAGS}; do
-            images+="${tag}@${DIGEST} "
+          IFS=$'\n' read -rd '' -a TAG_ARRAY <<< "${TAGS}"
+          IMAGES=""
+          for tag in "${TAG_ARRAY[@]}"; do
+            IMAGES+="${tag}@${DIGEST} "
           done
-          cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
+
+          echo "Signing the following images: $IMAGES"
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY $IMAGES
         env:
           TAGS: ${{ inputs.IMAGE_TAGS }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
