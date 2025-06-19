@@ -17,6 +17,8 @@ jobs:
     runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
     outputs:
       tags: ${{ steps.metadata.outputs.tags }}
+      digest: ${{ steps.metadata.outputs.digest }}
+      labels: ${{ steps.metadata.outputs.labels }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
