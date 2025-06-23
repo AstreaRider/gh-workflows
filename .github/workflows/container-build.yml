@@ -1,4 +1,4 @@
-name: Template for building a container image
+name: Template for building a container image only (no push)
 on:
   workflow_call:
     inputs:
@@ -17,7 +17,6 @@ jobs:
     runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
     outputs:
       tags: ${{ steps.metadata.outputs.tags }}
-      digest: ${{ steps.metadata.outputs.digest }}
       labels: ${{ steps.metadata.outputs.labels }}
     steps:
       - name: Checkout Repo
@@ -43,11 +42,10 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: false
-          labels: ${{ steps.meta.outputs.labels }}
+          labels: ${{ steps.metadata.outputs.labels }}
           tags: ${{ steps.metadata.outputs.tags }}
 
       - name: Debugging Information
         run: |
           echo "Tags: ${{ steps.metadata.outputs.tags }}"
-          echo "Digest: ${{ steps.metadata.outputs.digest }}"
           echo "Labels: ${{ steps.metadata.outputs.labels }}"
