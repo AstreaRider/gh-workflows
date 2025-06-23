@@ -45,3 +45,9 @@ jobs:
           push: false
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.metadata.outputs.tags }}
+
+      - name: Debugging Information
+        run: |
+          echo "Tags: ${{ steps.metadata.outputs.tags }}"
+          echo "Digest: ${{ steps.metadata.outputs.digest }}"
+          echo "Labels: ${{ steps.metadata.outputs.labels }}"
