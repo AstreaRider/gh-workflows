@@ -48,5 +48,10 @@ jobs:
       - name: Bridge metadata output to job output
         id: bridge
         run: |
-          echo "tags=${{ steps.metadata.outputs.tags }}" >> $GITHUB_OUTPUT
-          echo "labels=${{ steps.metadata.outputs.labels }}" >> $GITHUB_OUTPUT
+          echo "tags<<EOF" >> $GITHUB_OUTPUT
+          echo "${{ steps.metadata.outputs.tags }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+          echo "labels<<EOF" >> $GITHUB_OUTPUT
+          echo "${{ steps.metadata.outputs.labels }}" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
