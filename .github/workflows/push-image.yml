@@ -1,0 +1,53 @@
+name: Template to push a container image
+on:
+  workflow_call:
+    inputs:
+      CONTAINER_REGISTRY_REPO:
+        description: "name of your repo or project name in your container registry"
+        required: true
+        type: string
+      CONTAINER_LATEST_TAG:
+        description: "your container latest tag, example: dev-latest"
+        required: true
+        type: string
+      RUNNER_LABEL:
+        description: "your self hosted runner's label"
+        required: true
+        type: string
+      CONTAINER_BUILD_ID:
+        description: "your container build id (optional), example: dev-1744790194"
+        type: string
+    secrets:
+      CONTAINER_REGISTRY_USERNAME:
+        description: "your container registry username"
+        required: true
+      CONTAINER_REGISTRY_PASSWORD:
+        description: "your container registry password"
+        required: true
+
+env:
+  IMAGE: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}/${{ inputs.CONTAINER_REGISTRY_REPO }}
+  LATEST_ID: ${{ inputs.CONTAINER_LATEST_TAG }}
+  BUILD_ID: ${{ inputs.CONTAINER_BUILD_ID }}
+
+jobs:
+  push-image:
+    name: Scan an image vulnerabilities
+    runs-on: 
+      - self-hosted
+      - ${{ inputs.RUNNER_LABEL }}
+    steps:
+      - name: Login to container registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.CONTAINER_REGISTRY_PASSWORD }}
+
+      - name: Push to container registry with latest tag
+        run: |
+          - docker image push ${{ env.IMAGE }}:${{ env.LATEST_ID }}
+      - name: Push to container registry with latest tag & build id
+        if: ${{ inputs.BUILD_ID != '' }}
+        run: |
+          - docker image push ${{ env.IMAGE }}:${{ env.BUILD_ID }}
+          - docker image push ${{ env.IMAGE }}:${{ env.LATEST_ID }}
