@@ -26,9 +26,8 @@ jobs:
     name: Build a container image
     runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
     outputs:
-      tags: ${{ steps.bridge.outputs.tags }}
-      labels: ${{ steps.bridge.outputs.labels }}
-      test_variable: ${{ steps.variable_tumbal.outputs.test_variable }}
+      tags: ${{ steps.metadata.outputs.tags }}
+      labels: ${{ steps.metadata.outputs.labels }}
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -55,19 +54,3 @@ jobs:
           push: false
           labels: ${{ steps.metadata.outputs.labels }}
           tags: ${{ steps.metadata.outputs.tags }}
-
-      - name: Bridge metadata output to job output
-        id: bridge
-        run: |
-          echo "tags<<EOF" >> $GITHUB_OUTPUT
-          echo "${{ steps.metadata.outputs.tags }}" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-
-          echo "labels<<EOF" >> $GITHUB_OUTPUT
-          echo "${{ steps.metadata.outputs.labels }}" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-      
-      - name: Variable Tumbal
-        id: variable_tumbal
-        run: | 
-          echo "test_variable='test_value'" >> $GITHUB_OUTPUT
