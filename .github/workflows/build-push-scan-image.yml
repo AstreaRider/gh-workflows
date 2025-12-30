@@ -27,9 +27,7 @@ env:
 jobs:
   build-scan-image:
     name: Build a container image
-    runs-on: 
-      - self-hosted
-      - ${{ inputs.RUNNER_LABELS }}
+    runs-on: ${{ fromJson(format('[{0}]', inputs.RUNNER_LABELS)) }}
     outputs:
       build_id: ${{ steps.prep.outputs.BUILD_ID }}
       latest_id: ${{ steps.prep.outputs.LATEST_ID }}
