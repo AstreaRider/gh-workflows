@@ -64,6 +64,6 @@ jobs:
         uses: docker/scout-action@v1.2.2
         with:
           command: cves
-          image: ${{ env.IMAGE }}:${{ env.steps.prep.outputs.LATEST_ID }}
+          image: ${{ env.IMAGE }}:${{ steps.prep.outputs.LATEST_ID }}
           only-severities: critical,high
           exit-code: false
